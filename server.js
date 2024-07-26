@@ -95,6 +95,35 @@ app.put('/posts/:id', async (req, res) => {
         res.status(500).json(err);
     }
 });
+//search post
+app.get('/posts/search', async (req, res) => {
+    const { query } = req.query;
+    if(!query){
+        res.status(400).json({
+            error: 'Please add all the fields',
+            status: 400,
+            success: false,
+        });
+    }
+    try{
+        const post = await posts.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { body: { $regex: query, $options: 'i' } },
+                { category: { $regex: query, $options: 'i' } },
+                { tags: { $regex: query, $options: 'i' } },
+            ],
+        });
+        res.status(200).json({
+            data: post,
+            status: 200,
+            success: true,
+            message: 'post updated successfully',
+        });
+    }catch(err){
+        res.status(500).json(err);
+    }
+}); 
 app.listen(port, () => {    
     console.log(`Example app listening at http://localhost:${port}`);
 });
